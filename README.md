@@ -1,6 +1,6 @@
 # rito-stats
 
-https://stats.ritotools.net
+https://stats.ritocoin.org
 
 
 ## Project setup
