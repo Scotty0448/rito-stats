@@ -31,7 +31,6 @@
     <div id="supplyTip">
       <div class="label">Rewards</div>  <div class="stat">+ {{formattedInt(this.total_rewards)}}</div><br>
       <div class="label">Dev Fund</div> <div class="stat">+ {{formattedInt(this.total_dev_funds)}}</div><br>
-      <div class="label">Tx Fees</div>  <div class="stat">+ {{formattedInt(this.total_tx_fees)}}</div><br>
       <div class="label">Burned</div>   <div class="stat">- {{formattedInt(this.total_burned)}}</div><br>
     </div>
   </div>
@@ -66,7 +65,7 @@
     },
     computed: {
       formattedSupply: function() {
-        return this.formattedInt(this.total_rewards + this.total_dev_funds + this.total_tx_fees - this.total_burned)
+        return this.formattedInt(this.total_rewards + this.total_dev_funds - this.total_burned)
       }
     },
     methods: {
