@@ -1,8 +1,8 @@
 <style scoped>
   .title { text-align:center; color:#aa6; background-color:#444; font-size:22px; margin:-36px 80px 15px 80px; border-left:2px solid #aa6; border-right:2px solid #aa6; padding-bottom:1px; }
-  .panel { padding:20px; background-color:#333; width:400px; margin:40px auto 20px auto; }
-  .label { color:#999; font-size:15px; width:130px; display:inline-block; }
-  .stat { color:#bbb; font-size:22px; width:130px; display:inline-block; text-align:right; }
+  .panel { padding:20px; background-color:#333; width:430px; margin:40px auto 20px auto; }
+  .label { color:#999; font-size:15px; width:140px; display:inline-block; }
+  .stat { color:#bbb; font-size:22px; width:150px; display:inline-block; text-align:right; }
   .info { color:#999; font-size:15px; display:inline-block; padding-left:7px; }
   .info.icon { width:18px; height:18px; padding-left:3px; }
   .info.icon img { margin-bottom:-2px; }
@@ -21,13 +21,14 @@
 <template>
   <div class="panel">
     <div class="title">Rito Stats</div>
-    <div class="label">Last Block</div>   <div class="stat">{{height}}</div> <div class="info">{{block_age}}</div><br>
-    <div class="label">Net Hash</div>     <div class="stat">{{networkhashps}}</div> <div class="info">Gh/s</div><br>
-    <div class="label">Difficulty</div>   <div class="stat">{{difficulty}}</div><br>
-    <div class="label">Last Reward</div>  <div class="stat">{{reward}}</div><br>
-    <div class="label">Circ. Supply</div> <div class="stat">{{formattedSupply}}</div> <div class="info icon" v-tooltip="{html:'supplyTip', class:'tooltip'}"><img src="fi-info.svg"></div><br>
-    <div class="label">Price (BTC)</div>  <div class="stat">{{last_price}}</div> <div :class="price_change" class="info"></div><br>
-    <div class="label">Price (USD)</div>  <div class="stat">{{last_dollars}}</div> <div class="info">${{last_btc}} / BTC</div><br>
+    <div class="label">Last Block</div>         <div class="stat">{{formattedInt(height)}}</div> <div class="info">{{block_age}}</div><br>
+    <div class="label">Net Hash</div>           <div class="stat">{{formattedInt(networkhashps)}}</div> <div class="info">Gh/s</div><br>
+    <div class="label">Difficulty</div>         <div class="stat">{{formattedInt(difficulty)}}</div><br>
+    <div class="label">Last Reward</div>        <div class="stat">{{formattedInt(reward)}}</div><br>
+    <div class="label">Circ. Supply</div>       <div class="stat">{{formattedInt(supply)}}</div> <div class="info icon" v-tooltip="{html:'supplyTip', class:'tooltip'}"><img src="fi-info.svg"></div><br>
+    <div class="label">CryptoBridge Price</div> <div class="stat">{{last_cryptobridge_price}}</div><br>
+    <div class="label">Safe.Trade Price</div>   <div class="stat">{{last_safetrade_price}}</div> <div :class="safetrade_price_change" class="info"></div><br>
+    <div class="label">Price (USD)</div>        <div class="stat">{{last_dollars}}</div> <div class="info">${{last_btc}} / BTC</div><br>
     <div id="supplyTip">
       <div class="label">Rewards</div>  <div class="stat">+ {{formattedInt(this.total_rewards)}}</div><br>
       <div class="label">Dev Fund</div> <div class="stat">+ {{formattedInt(this.total_dev_funds)}}</div><br>
@@ -57,15 +58,12 @@
         total_dev_funds: '',
         total_tx_fees: '',
         total_burned: '',
-        last_price: '',
-        price_change: '',
+        supply: '',
+        last_cryptobridge_price: '',
+        last_safetrade_price: '',
+        safetrade_price_change: '',
         last_dollars: '',
         last_btc: '',
-      }
-    },
-    computed: {
-      formattedSupply: function() {
-        return this.formattedInt(this.total_rewards + this.total_dev_funds - this.total_burned)
       }
     },
     methods: {
@@ -89,25 +87,27 @@
         this.$socket.emit('request', 'currentPriceInfo')
       },
       currentBlockInfo(info) {
-        this.height          = this.formattedInt(info.height)
-        this.time            = info.time
-        this.block_age       = moment(info.time * 1000).fromNow()
-        this.networkhashps   = Math.round(info.networkhashps / 1000000000)
-        this.difficulty      = Math.round(info.difficulty)
-        this.reward          = this.formattedInt(info.reward)
-        this.dev_fund        = info.dev_fund
-        this.tx_fee          = info.tx_fee
-        this.total_rewards   = Math.round(info.total_rewards / 100000000)
-        this.total_dev_funds = Math.round(info.total_dev_funds / 100000000)
-        this.total_tx_fees   = Math.round(info.total_tx_fees / 100000000)
-        this.total_burned    = Math.round(info.total_burned / 100000000)
+        this.height           = info.height
+        this.time             = info.time
+        this.block_age        = moment(info.time * 1000).fromNow()
+        this.networkhashps    = Math.round(info.networkhashps / 1000000000)
+        this.difficulty       = Math.round(info.difficulty)
+        this.reward           = info.reward
+        this.dev_fund         = info.dev_fund
+        this.tx_fee           = info.tx_fee
+        this.total_rewards    = Math.round(info.total_rewards / 100000000)
+        this.total_dev_funds  = Math.round(info.total_dev_funds / 100000000)
+        this.total_tx_fees    = Math.round(info.total_tx_fees / 100000000)
+        this.total_burned     = Math.round(info.total_burned / 100000000)
+        this.supply           = this.total_rewards + this.total_dev_funds - this.total_burned
       },
       currentPriceInfo(info) {
         if (Object.keys(info).length > 0) {
-          this.last_price    = info.last.toFixed(8)
-          this.price_change  = info.change
-          this.last_btc      = info.btc.toFixed(2)
-          this.last_dollars  = (info.last * info.btc).toFixed(8)
+          this.last_cryptobridge_price  = info.cryptobridge_last.toFixed(8)
+          this.last_safetrade_price     = info.safetrade_last.toFixed(8)
+          this.safetrade_price_change   = info.safetrade_change
+          this.last_btc                 = info.btc.toFixed(2)
+          this.last_dollars             = (info.safetrade_last * info.btc).toFixed(8)
         }
       },
       reload() {
