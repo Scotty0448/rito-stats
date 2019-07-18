@@ -13,6 +13,7 @@
 <style>
   .vue-tooltip { background-color:#555; }
   .vue-tooltip .tooltip-arrow { display:none; }
+  #supplyTip { padding:5px 10px; }
   #supplyTip .label { color:#ddd; font-size:12px; width:80px; }
   #supplyTip .stat { color:#ddd; font-size:12px; width:90px; }
   #supplyTip .indented { padding-left:15px; }
@@ -26,9 +27,8 @@
     <div class="label">Difficulty</div>         <div class="stat">{{formattedInt(difficulty)}}</div><br>
     <div class="label">Last Reward</div>        <div class="stat">{{formattedInt(reward)}}</div><br>
     <div class="label">Circ. Supply</div>       <div class="stat">{{formattedInt(supply)}}</div> <div class="info icon" v-tooltip="{html:'supplyTip', class:'tooltip'}"><img src="fi-info.svg"></div><br>
-    <div class="label">CryptoBridge Price</div> <div class="stat">{{last_cryptobridge_price}}</div><br>
-    <div class="label">Safe.Trade Price</div>   <div class="stat">{{last_safetrade_price}}</div> <div :class="safetrade_price_change" class="info"></div><br>
-    <div class="label">Price (USD)</div>        <div class="stat">{{last_dollars}}</div> <div class="info">${{last_btc}} / BTC</div><br>
+    <div class="label">CryptoBridge Price</div> <div class="stat">{{last_cryptobridge_price}}</div> <div class="info">${{last_cryptobridge_dollars}}</div><br>
+    <div class="label">Safe.Trade Price</div>   <div class="stat">{{last_safetrade_price}}</div> <div class="info">${{last_safetrade_dollars}}</div><br>
     <div id="supplyTip">
       <div class="label">Rewards</div>  <div class="stat">+ {{formattedInt(this.total_rewards)}}</div><br>
       <div class="label">Dev Fund</div> <div class="stat">+ {{formattedInt(this.total_dev_funds)}}</div><br>
@@ -62,7 +62,8 @@
         last_cryptobridge_price: '',
         last_safetrade_price: '',
         safetrade_price_change: '',
-        last_dollars: '',
+        last_cryptobridge_dollars: '',
+        last_safetrade_dollars: '',
         last_btc: '',
       }
     },
@@ -103,11 +104,12 @@
       },
       currentPriceInfo(info) {
         if (Object.keys(info).length > 0) {
-          this.last_cryptobridge_price  = info.cryptobridge_last.toFixed(8)
-          this.last_safetrade_price     = info.safetrade_last.toFixed(8)
-          this.safetrade_price_change   = info.safetrade_change
-          this.last_btc                 = info.btc.toFixed(2)
-          this.last_dollars             = (info.safetrade_last * info.btc).toFixed(8)
+          this.last_cryptobridge_price    = info.cryptobridge_last.toFixed(8)
+          this.last_safetrade_price       = info.safetrade_last.toFixed(8)
+          this.safetrade_price_change     = info.safetrade_change
+          this.last_btc                   = info.btc.toFixed(2)
+          this.last_cryptobridge_dollars  = (info.cryptobridge_last * info.btc).toFixed(8)
+          this.last_safetrade_dollars     = (info.safetrade_last * info.btc).toFixed(8)
         }
       },
       reload() {
